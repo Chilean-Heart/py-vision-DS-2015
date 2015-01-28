@@ -1,21 +1,13 @@
 import time
-from pynetworktables import *
+from networktables import NetworkTable
 
-SmartDashboard.init()
 
-table = NetworkTable.GetTable("data_table")
+table = NetworkTable.getTable("data_table")
 
-class Listener(ITableListener):
-    a = 50
-    def __init__(self):
-        ITableListener.__init__(self)
+def valueChanged(table, key, value, isNew):
+    print('Value changed: key %s, isNew: %s: %s' % (key, isNew, value))
 
-    def ValueChanged(self, table, key, value, isNew):
-        print('Value changed: key %s, isNew: %s: %s' % (key, isNew, table.GetValue(key)))
-
-listener = Listener()
-
-table.AddTableListener(listener)
+table.addTableListener(valueChanged)
 
 ready = False
 setup_state = False
@@ -28,9 +20,9 @@ while True:
             print("Error count exceeded. Exiting")
             exit(0)
         try:
-            table.PutBoolean("connection_state", connection)
-            ready = table.GetBoolean("connection_state")
-        except TableKeyNotDefinedException as err:
+            table.putBoolean("connection_state", connection)
+            ready = table.getBoolean("connection_state")
+        except KeyError as err:
             print(err.args)
             error_counter += 1
             time.sleep(0.01)

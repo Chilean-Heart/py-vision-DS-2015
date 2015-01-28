@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from pynetworktables import *
+from networktables import NetworkTable
 
 
 def main():
@@ -73,15 +73,15 @@ def main():
 
     #Network table. Startup and object creation
     if useLocalRobot:
-        NetworkTable.SetIPAddress(localIP)
+        NetworkTable.setIPAddress(localIP)
     else:
-        NetworkTable.SetIPAddress(robotIP)
-    NetworkTable.SetClientMode()
-    NetworkTable.Initialize()
+        NetworkTable.setIPAddress(robotIP)
+    NetworkTable.setClientMode()
+    NetworkTable.initialize()
     if useLocalRobot:
-        table = NetworkTable.GetTable("data_table")
+        table = NetworkTable.getTable("data_table")
     else:
-        table = NetworkTable.GetTable("vision")
+        table = NetworkTable.getTable("vision")
 
     #Camera creation and parameters
     cam = cv2.VideoCapture(kCamPort)
@@ -97,8 +97,8 @@ def main():
         isConnected = False
         while not isConnected:
             try:
-                isConnected = table.GetBoolean("connection_state")
-            except TableKeyNotDefinedException as err:
+                isConnected = table.getBoolean("connection_state")
+            except KeyError as err:
                 isConnected = False
 
     #Startup Camera
@@ -193,13 +193,13 @@ def main():
 
         #Attempt to write values on NetworkTables
         try:
-            table.PutNumber(kXString, center[0])
-            table.PutNumber(kYString, center[1])
-            table.PutBoolean(kNewCentroidString, centroid_is_new)
-            table.PutNumber(kDistString, distance)
-            table.PutNumber(kRatioXYString, ratioXY)
-            table.PutNumber(kRatioYXString, ratioYX)
-        except TableKeyNotDefinedException as err:
+            table.putNumber(kXString, center[0])
+            table.putNumber(kYString, center[1])
+            table.putBoolean(kNewCentroidString, centroid_is_new)
+            table.putNumber(kDistString, distance)
+            table.putNumber(kRatioXYString, ratioXY)
+            table.putNumber(kRatioYXString, ratioYX)
+        except KeyError as err:
             print(err.args)
             print("Couldn't upload values")
             isConnected = False
