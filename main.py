@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
-from networktables import NetworkTable
+from networktables import NetworkTables
 
 
 def main():
     #Constants
 
-    kCamPort = 1
+    kCamPort = 0
     kFrameInterval = 50
 
     kMinHsv = 19
@@ -71,22 +71,28 @@ def main():
     se = cv2.getStructuringElement(cv2.MORPH_RECT, (4,4))
     center = (kFrameWidth / 2, kFrameHeight / 2)
 
-    #Network table. Startup and object creation
-    if useLocalRobot:
-        NetworkTable.setIPAddress(localIP)
-    else:
-        NetworkTable.setIPAddress(robotIP)
-    NetworkTable.setClientMode()
-    NetworkTable.initialize()
-    if useLocalRobot:
-        table = NetworkTable.getTable("data_table")
-    else:
-        table = NetworkTable.getTable("vision")
+    # #Network table. Startup and object creation
+    # if useLocalRobot:
+    #     NetworkTable.setIPAddress(localIP)
+    # else:
+    #     NetworkTable.setIPAddress(robotIP)
+    # NetworkTable.setClientMode()
+    # NetworkTable.initialize()
+    # if useLocalRobot:
+    #     table = NetworkTable.getTable("Root")
+    # else:
+    #     table = NetworkTable.getTable("vision")
+    NetworkTables.initialize(server='localhost')
+    table = NetworkTables.getTable('Root')
+
+    # Define cam parameters to modify
+    CV_CAP_PROP_FRAME_WIDTH = 3
+    CV_CAP_PROP_FRAME_HEIGHT = 4
 
     #Camera creation and parameters
     cam = cv2.VideoCapture(kCamPort)
-    cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, kFrameWidth)
-    cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, kFrameHeight)
+    cam.set(CV_CAP_PROP_FRAME_WIDTH, kFrameWidth)
+    cam.set(CV_CAP_PROP_FRAME_HEIGHT, kFrameHeight)
 
     #CV Named window
     cv2.namedWindow("Window", 1)
@@ -109,8 +115,10 @@ def main():
         else:
             camClosed = True
 
-    connect()
 
+    variable = None
+
+    connect()
     #Endless loop to read and process frames
     while ret:
         #Image conversion
@@ -130,7 +138,7 @@ def main():
 
 
         contour_image = edges_image.copy()
-        contours, hierarchy = cv2.findContours(contour_image, cv2.cv.CV_RETR_EXTERNAL, cv2.cv.CV_CHAIN_APPROX_SIMPLE)
+        imagen, contours, hierarchy = cv2.findContours(contour_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         areas = [cv2.contourArea(c) for c in contours]
 
         try:
